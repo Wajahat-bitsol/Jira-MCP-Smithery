@@ -31,7 +31,11 @@ async function jiraRequest(path: string, options: RequestInit = {}) {
     'Accept': 'application/json',
   };
   const mergedHeaders = Object.assign({}, baseHeaders, options.headers || {});
-  let body: BodyInit | undefined = undefined;
+  const fetchOptions: RequestInit = {
+    headers: mergedHeaders,
+    ...(options.method ? { method: options.method } : {}),
+  };
+  let safeBody: BodyInit | undefined = undefined;
   if (
     options.body !== undefined &&
     options.body !== null &&
@@ -39,13 +43,11 @@ async function jiraRequest(path: string, options: RequestInit = {}) {
       (typeof Buffer !== 'undefined' && options.body instanceof Buffer) ||
       (typeof Uint8Array !== 'undefined' && options.body instanceof Uint8Array))
   ) {
-    body = options.body;
+    safeBody = options.body;
   }
-  const fetchOptions: RequestInit = {
-    headers: mergedHeaders,
-    ...(options.method ? { method: options.method } : {}),
-    ...(body !== undefined ? { body } : {}),
-  };
+  if (safeBody !== undefined) {
+    fetchOptions.body = safeBody;
+  }
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
     const err = await res.text();
