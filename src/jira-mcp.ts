@@ -9,6 +9,8 @@ export const mcpMeta = {
 
 // --- Utility for Jira API Requests ---
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // --- Centralized Jira Config ---
 function getJiraConfig() {
